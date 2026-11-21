@@ -9,8 +9,8 @@ import {
 } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FreeBadge } from '../components';
-import { useTheme } from '../context/ThemeContext';
-import { useUser } from '../context/UserContext';
+import { useTheme } from '../context/useTheme';
+import { useUser } from '../context/useUser';
 
 const TRACK_HIGHLIGHTS = [
   {

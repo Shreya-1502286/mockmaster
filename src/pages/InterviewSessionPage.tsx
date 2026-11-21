@@ -6,7 +6,7 @@ import {
   Send,
   Sparkles,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import {
   CodePane,
@@ -15,7 +15,7 @@ import {
   QuestionPanel,
 } from '../components';
 import { AppLayout } from '../components/layout/AppLayout';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../context/useUser';
 import { mockApi } from '../mocks/api';
 import type { Question, QuestionEvaluation, SessionRecord } from '../mocks/types';
 
@@ -37,42 +37,53 @@ export function InterviewSessionPage() {
   const [evaluating, setEvaluating] = useState(false);
   const [completing, setCompleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const loadSession = useCallback(async () => {
-    if (!sessionId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const sess = await mockApi.getSessionById(sessionId);
-      const allQs = await mockApi.getQuestions({ track: sess.trackId });
-      const ordered = sess.questionIds
-        .map((id) => allQs.find((q) => q.id === id))
-        .filter((q): q is Question => Boolean(q));
-
-      setSession(sess);
-      setQuestions(ordered);
-
-      const initialCode: Record<string, string> = {};
-      ordered.forEach((q) => {
-        if (q.starterCode) initialCode[q.id] = q.starterCode;
-      });
-      setCodeMap((prev) => ({ ...initialCode, ...prev }));
-
-      const existingEvals: Record<string, QuestionEvaluation> = {};
-      sess.evaluations.forEach((ev) => {
-        existingEvals[ev.questionId] = ev;
-      });
-      setEvaluations(existingEvals);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load interview session.');
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadSession();
-  }, [loadSession]);
+    if (!sessionId) return;
+    let active = true;
+    mockApi
+      .getSessionById(sessionId)
+      .then(async (sess) => {
+        const allQs = await mockApi.getQuestions({ track: sess.trackId });
+        if (!active) return;
+        const ordered = sess.questionIds
+          .map((id) => allQs.find((q) => q.id === id))
+          .filter((q): q is Question => Boolean(q));
+
+        setSession(sess);
+        setQuestions(ordered);
+
+        const initialCode: Record<string, string> = {};
+        ordered.forEach((q) => {
+          if (q.starterCode) initialCode[q.id] = q.starterCode;
+        });
+        setCodeMap((prev) => ({ ...initialCode, ...prev }));
+
+        const existingEvals: Record<string, QuestionEvaluation> = {};
+        sess.evaluations.forEach((ev) => {
+          existingEvals[ev.questionId] = ev;
+        });
+        setEvaluations(existingEvals);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : 'Failed to load interview session.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [sessionId, reloadKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   const currentQuestion = questions[currentIdx];
   const currentEval = currentQuestion ? evaluations[currentQuestion.id] : undefined;
@@ -133,7 +144,7 @@ export function InterviewSessionPage() {
       ) : error || !session || !currentQuestion ? (
         <ErrorState
           message={error ?? 'Session not found.'}
-          onRetry={() => void loadSession()}
+          onRetry={handleRetry}
         />
       ) : (
         <div className="space-y-5">

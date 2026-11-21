@@ -1,5 +1,5 @@
 import { Award, Clock, Flame, Target } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   DifficultyBadge,
@@ -16,23 +16,34 @@ export function ProgressPage() {
   const [progress, setProgress] = useState<ProgressSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const loadProgress = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await mockApi.getMyProgress();
-      setProgress(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load progress.");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadProgress();
-  }, [loadProgress]);
+    let active = true;
+    mockApi
+      .getMyProgress()
+      .then((data) => {
+        if (!active) return;
+        setProgress(data);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : "Failed to load progress.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   return (
     <AppLayout>
@@ -50,7 +61,7 @@ export function ProgressPage() {
         ) : error || !progress ? (
           <ErrorState
             message={error ?? "Could not load progress."}
-            onRetry={() => void loadProgress()}
+            onRetry={handleRetry}
           />
         ) : (
           <>
@@ -72,7 +83,7 @@ export function ProgressPage() {
                   </span>
                   <Flame
                     className="w-4 h-4"
-                    style={{ color: "var(--emerald)" }}
+                    style={{ color: "var(--amber)" }}
                   />
                 </div>
                 <p className="text-2xl font-bold tabular-nums">

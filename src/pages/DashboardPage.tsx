@@ -1,5 +1,5 @@
 import { ArrowRight, Calendar, Flame, Play } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   CourseCard,
@@ -11,7 +11,7 @@ import {
   TimelineRail,
 } from '../components';
 import { AppLayout } from '../components/layout/AppLayout';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../context/useUser';
 import { mockApi } from '../mocks/api';
 import type {
   DebriefQuote,
@@ -30,31 +30,41 @@ export function DashboardPage() {
   const [progress, setProgress] = useState<ProgressSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [tracksData, planData, debriefData, progressData] = await Promise.all([
-        mockApi.getTracks(),
-        mockApi.getMyWeeklyPlan(),
-        mockApi.getMyDebrief(),
-        mockApi.getMyProgress(),
-      ]);
-      setTracks(tracksData);
-      setWeeklyPlan(planData);
-      setDebriefs(debriefData);
-      setProgress(progressData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadDashboard();
-  }, [loadDashboard, user?.id]);
+    let active = true;
+    Promise.all([
+      mockApi.getTracks(),
+      mockApi.getMyWeeklyPlan(),
+      mockApi.getMyDebrief(),
+      mockApi.getMyProgress(),
+    ])
+      .then(([tracksData, planData, debriefData, progressData]) => {
+        if (!active) return;
+        setTracks(tracksData);
+        setWeeklyPlan(planData);
+        setDebriefs(debriefData);
+        setProgress(progressData);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [user?.id, reloadKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   const enrolledTracks = tracks.filter((t) => t.isEnrolled);
   const freeTracks = tracks.filter((t) => t.isFree);
@@ -71,7 +81,7 @@ export function DashboardPage() {
       {loading ? (
         <LoadingState label="Loading your dashboard..." />
       ) : error ? (
-        <ErrorState message={error} onRetry={() => void loadDashboard()} />
+        <ErrorState message={error} onRetry={handleRetry} />
       ) : (
         <div className="space-y-8">
           {/* Welcome & Weekly Progress Header */}
@@ -88,8 +98,8 @@ export function DashboardPage() {
                 <span
                   className="inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-semibold rounded-full"
                   style={{
-                    backgroundColor: 'var(--emerald-soft)',
-                    color: 'var(--emerald)',
+                    backgroundColor: 'var(--amber-soft)',
+                    color: 'var(--amber)',
                   }}
                 >
                   <Flame className="w-3.5 h-3.5 fill-current" />
@@ -151,10 +161,10 @@ export function DashboardPage() {
             </div>
           </section>
 
-          {/* Main 2-column grid: Your Week Timeline + Last Debrief */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* Compact Horizontal "Your week" + "Last debrief" */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
             <section
-              className="lg:col-span-7 rounded-2xl border p-6"
+              className="lg:col-span-7 rounded-2xl border p-5 flex flex-col justify-between"
               style={{
                 backgroundColor: 'var(--bg-surface)',
                 borderColor: 'var(--border-subtle)',
@@ -186,8 +196,8 @@ export function DashboardPage() {
               )}
             </section>
 
-            <section className="lg:col-span-5 space-y-4">
-              <div className="flex items-center justify-between">
+            <section className="lg:col-span-5 flex flex-col">
+              <div className="flex items-center justify-between mb-3">
                 <h2 className="text-base font-bold">Last debrief</h2>
                 <Link
                   to="/progress"
@@ -198,14 +208,16 @@ export function DashboardPage() {
                 </Link>
               </div>
 
-              {debriefs.length > 0 ? (
-                <DebriefCard debrief={debriefs[0]} />
-              ) : (
-                <EmptyState
-                  title="No debriefs yet"
-                  description="Complete your first mock interview to receive personalized mentor feedback."
-                />
-              )}
+              <div className="flex-1">
+                {debriefs.length > 0 ? (
+                  <DebriefCard debrief={debriefs[0]} />
+                ) : (
+                  <EmptyState
+                    title="No debriefs yet"
+                    description="Complete your first mock interview to receive personalized mentor feedback."
+                  />
+                )}
+              </div>
             </section>
           </div>
 
@@ -227,6 +239,7 @@ export function DashboardPage() {
                 <CourseCard
                   key={track.id}
                   track={track}
+                  actionLabel="Resume"
                   onSelect={(t) => navigate(`/lobby/${t.id}`)}
                 />
               ))}
@@ -235,13 +248,11 @@ export function DashboardPage() {
 
           {/* Free Courses / Free Practice Shelf */}
           <section className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-bold">Free Courses / Free Practice</h2>
-                <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
-                  Open tracks you can practice anytime without limits
-                </p>
-              </div>
+            <div>
+              <h2 className="text-lg font-bold">Free Courses / Free Practice</h2>
+              <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>
+                Open tracks you can practice anytime without limits
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -249,7 +260,7 @@ export function DashboardPage() {
                 <CourseCard
                   key={track.id}
                   track={track}
-                  actionLabel="Practice Free"
+                  actionLabel="Start"
                   onSelect={(t) => navigate(`/lobby/${t.id}`)}
                 />
               ))}
@@ -260,4 +271,3 @@ export function DashboardPage() {
     </AppLayout>
   );
 }
-

@@ -1,5 +1,5 @@
 import { ArrowLeft, Clock, Flame, Play, ShieldCheck } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   DifficultyBadge,
@@ -8,7 +8,7 @@ import {
   LoadingState,
 } from '../components';
 import { AppLayout } from '../components/layout/AppLayout';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../context/useUser';
 import { mockApi } from '../mocks/api';
 import type {
   Difficulty,
@@ -37,31 +37,41 @@ export function SessionLobbyPage() {
   const [loading, setLoading] = useState(true);
   const [starting, setStarting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const loadLobby = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [tracks, qs] = await Promise.all([
-        mockApi.getTracks(),
-        mockApi.getQuestions({
-          track: (trackId as TrackId) ?? 'dsa',
-          difficulty,
-        }),
-      ]);
-      const found = tracks.find((t) => t.id === trackId) ?? tracks[0];
-      setTrack(found);
-      setPreviewQuestions(qs);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load session lobby.');
-    } finally {
-      setLoading(false);
-    }
-  }, [trackId, difficulty]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadLobby();
-  }, [loadLobby]);
+    let active = true;
+    Promise.all([
+      mockApi.getTracks(),
+      mockApi.getQuestions({
+        track: (trackId as TrackId) ?? 'dsa',
+        difficulty,
+      }),
+    ])
+      .then(([tracks, qs]) => {
+        if (!active) return;
+        const found = tracks.find((t) => t.id === trackId) ?? tracks[0];
+        setTrack(found);
+        setPreviewQuestions(qs);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : 'Failed to load session lobby.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [trackId, difficulty, reloadKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   const handleStartSession = async () => {
     if (!track) return;
@@ -88,7 +98,7 @@ export function SessionLobbyPage() {
       ) : error || !track ? (
         <ErrorState
           message={error ?? 'Track not found.'}
-          onRetry={() => void loadLobby()}
+          onRetry={handleRetry}
         />
       ) : (
         <div className="space-y-6">

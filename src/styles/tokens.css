@@ -11,7 +11,7 @@
   /* Surfaces */
   --bg-canvas: #ffffff;
   --bg-surface: #ffffff;
-  --bg-surface-subtle: #f8f9fa;
+  --bg-surface-subtle: #f7f9fa;
   --bg-surface-hover: #f1f3f4;
   --bg-code: #f4f5f7;
   --bg-overlay: rgba(32, 33, 36, 0.45);
@@ -23,9 +23,9 @@
   --text-inverse: #ffffff;
 
   /* Borders */
-  --border-subtle: #e8eaed;
-  --border-default: #dadce0;
-  --border-strong: #bdc1c6;
+  --border-subtle: #e4e7ec;
+  --border-default: #d0d5dd;
+  --border-strong: #98a2b3;
 
   /* Brand & Primary Accent */
   --accent-primary: #5624d2;
@@ -39,18 +39,23 @@
   --emerald-soft: #e6f4ea;
   --emerald-border: #a8dab5;
 
+  /* Amber (Medium difficulty, Streak accents) */
+  --amber: #d97706;
+  --amber-soft: #fef3c7;
+  --amber-border: #fcd34d;
+
   /* Semantic Status & Difficulty Badges */
   --status-info: #1a73e8;
   --status-info-soft: #e8f0fe;
-  --status-warning: #b06000;
-  --status-warning-soft: #fef7e0;
+  --status-warning: #d97706;
+  --status-warning-soft: #fef3c7;
   --status-danger: #c5221f;
   --status-danger-soft: #fce8e6;
 
   --badge-easy-text: #1e8e5a;
   --badge-easy-bg: #e6f4ea;
-  --badge-medium-text: #b06000;
-  --badge-medium-bg: #fef7e0;
+  --badge-medium-text: #d97706;
+  --badge-medium-bg: #fef3c7;
   --badge-hard-text: #c5221f;
   --badge-hard-bg: #fce8e6;
 
@@ -105,6 +110,11 @@
   --emerald-hover: #46ba86;
   --emerald-soft: rgba(52, 168, 116, 0.14);
   --emerald-border: rgba(52, 168, 116, 0.35);
+
+  /* Restrained Amber */
+  --amber: #f59e0b;
+  --amber-soft: rgba(245, 158, 11, 0.14);
+  --amber-border: rgba(245, 158, 11, 0.35);
 
   /* Semantic Status & Difficulty Badges */
   --status-info: #8ab4f8;

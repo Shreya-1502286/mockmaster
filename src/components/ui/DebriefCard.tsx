@@ -1,10 +1,10 @@
-import { Quote, Sparkles } from 'lucide-react';
+import { Lightbulb, Sparkles } from 'lucide-react';
 import type { DebriefQuote } from '../../mocks/types';
 
 export function DebriefCard({ debrief }: { debrief: DebriefQuote }) {
   return (
     <div
-      className="rounded-xl border p-5 flex flex-col justify-between gap-4"
+      className="rounded-xl border p-5 flex flex-col justify-between gap-4 h-full"
       style={{
         backgroundColor: 'var(--bg-surface)',
         borderColor: 'var(--border-subtle)',
@@ -13,15 +13,15 @@ export function DebriefCard({ debrief }: { debrief: DebriefQuote }) {
     >
       <div>
         <div className="flex items-center justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <div
-              className="w-8 h-8 rounded-full flex items-center justify-center"
+              className="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
               style={{
-                backgroundColor: 'var(--accent-primary-soft)',
-                color: 'var(--accent-primary)',
+                backgroundColor: 'var(--amber-soft)',
+                color: 'var(--amber)',
               }}
             >
-              <Quote className="w-4 h-4" />
+              <Lightbulb className="w-4 h-4" />
             </div>
             <div>
               <p className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
@@ -72,4 +72,3 @@ export function DebriefCard({ debrief }: { debrief: DebriefQuote }) {
     </div>
   );
 }
-

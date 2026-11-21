@@ -76,6 +76,21 @@ All notable changes to MockMaster are documented in this file by phase.
 ### Open Questions / Notes
 - None. Ready for Phase 4 (Light/Dark QA, Demo Seed & Polish).
 
+## Phase 4 — Visual Alignment, Light/Dark QA & Polish (2026-11-21)
+### Files Created / Modified
+- Updated `src/styles/tokens.css` with exact light-mode tokens (`#FFFFFF` canvas, `#F7F9FA` subtle surfaces, `#E4E7EC` card borders, `#5624D2` primary accent, `#1E8E5A` emerald, `#D97706` amber) and Chrome-inspired dark-mode tokens (`#202124` canvas, `#292A2D` surfaces, `#3C4043` borders).
+- Updated `src/components/ui/CourseCard.tsx` with distinct flat geometric SVG header graphics per track (`dsa`, `frontend`, `behavioral`, `system-design`), explicit `DifficultyBadge`, `FREE` badge, and primary `Resume` / outlined `Start` CTA buttons.
+- Updated `src/components/ui/TimelineRail.tsx`, `src/components/ui/DebriefCard.tsx`, and `src/pages/DashboardPage.tsx` to render `"Your week"` as a compact horizontal Mon–Fri connected node rail paired with `"Last debrief"` (lightbulb accent) above `"My Courses"` and `"Free Courses / Free Practice"`.
+- Updated `src/components/layout/Navbar.tsx` streak badge to use amber tokens and removed synchronous `setState` in `useEffect`.
+- Split context hooks into `src/context/contexts.ts`, `src/context/useTheme.ts`, and `src/context/useUser.ts` and refactored `useEffect` data-fetching across pages to eliminate all `oxlint` warnings.
+
+### Key Decisions
+- Extracted `SettingsForm` keyed by `user.id` in `SettingsPage.tsx` and moved async fetch logic directly into `useEffect` with cancellation guards across pages to satisfy React Compiler rules (`0` `oxlint` warnings/errors).
+
+### Open Questions / Notes
+- Ready for user review and git commit/push approval.
+
+
 
 
 

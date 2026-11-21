@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../context/useTheme';
 import type { UserPersona } from '../../mocks/types';
 
 interface NavbarProps {
@@ -38,9 +38,7 @@ export function Navbar({
   const menuRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    setLocalQuery(searchQuery);
-  }, [searchQuery]);
+  const displayQuery = onSearchChange ? searchQuery : localQuery;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -119,7 +117,7 @@ export function Navbar({
             />
             <input
               type="search"
-              value={localQuery}
+              value={displayQuery}
               onChange={(e) => {
                 setLocalQuery(e.target.value);
                 onSearchChange?.(e.target.value);
@@ -140,9 +138,9 @@ export function Navbar({
             className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold border"
             title="Current practice streak"
             style={{
-              backgroundColor: 'var(--emerald-soft)',
-              color: 'var(--emerald)',
-              borderColor: 'var(--emerald-border)',
+              backgroundColor: 'var(--amber-soft)',
+              color: 'var(--amber)',
+              borderColor: 'var(--amber-border)',
             }}
           >
             <Flame className="w-3.5 h-3.5 fill-current" />

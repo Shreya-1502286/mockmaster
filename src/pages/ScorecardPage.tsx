@@ -7,7 +7,7 @@ import {
   Sparkles,
   TrendingUp,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   DifficultyBadge,
@@ -25,24 +25,35 @@ export function ScorecardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [expandedQ, setExpandedQ] = useState<string | null>(null);
-
-  const loadScorecard = useCallback(async () => {
-    if (!sessionId) return;
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await mockApi.getSessionById(sessionId);
-      setSession(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load scorecard.');
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId]);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadScorecard();
-  }, [loadScorecard]);
+    if (!sessionId) return;
+    let active = true;
+    mockApi
+      .getSessionById(sessionId)
+      .then((data) => {
+        if (!active) return;
+        setSession(data);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : 'Failed to load scorecard.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [sessionId, reloadKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   const scorecard = session?.scorecard;
   const score = scorecard?.overallScore ?? 0;
@@ -57,7 +68,7 @@ export function ScorecardPage() {
       ) : error || !session || !scorecard ? (
         <ErrorState
           message={error ?? 'Scorecard not found.'}
-          onRetry={() => void loadScorecard()}
+          onRetry={handleRetry}
         />
       ) : (
         <div className="space-y-6">

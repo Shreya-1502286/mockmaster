@@ -1,24 +1,14 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useState,
   type ReactNode,
 } from 'react';
 import { mockApi } from '../mocks/api';
 import type { ThemeMode } from '../mocks/types';
-
-interface ThemeContextValue {
-  theme: ThemeMode;
-  isSyncing: boolean;
-  setTheme: (next: ThemeMode) => Promise<void>;
-  toggleTheme: () => Promise<void>;
-}
+import { ThemeContext } from './contexts';
 
 const THEME_STORAGE_KEY = 'mockmaster_theme';
-
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 function getInitialTheme(): ThemeMode {
   try {
@@ -34,7 +24,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<ThemeMode>(getInitialTheme);
   const [isSyncing, setIsSyncing] = useState(false);
 
-  // Apply data-theme attribute to <html>
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     try {
@@ -44,7 +33,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     }
   }, [theme]);
 
-  // Hydrate theme from active user's persisted mock settings
   useEffect(() => {
     let active = true;
     mockApi
@@ -83,12 +71,3 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     </ThemeContext.Provider>
   );
 }
-
-export function useTheme(): ThemeContextValue {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return ctx;
-}
-

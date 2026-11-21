@@ -1,24 +1,13 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useState,
   type ReactNode,
 } from 'react';
 import { mockApi } from '../mocks/api';
 import type { UserPersona } from '../mocks/types';
-import { useTheme } from './ThemeContext';
-
-interface UserContextValue {
-  user: UserPersona | null;
-  loading: boolean;
-  refreshUser: () => Promise<void>;
-  loginAsPersona: (personaId: string) => Promise<UserPersona>;
-  logout: () => void;
-}
-
-const UserContext = createContext<UserContextValue | undefined>(undefined);
+import { UserContext } from './contexts';
+import { useTheme } from './useTheme';
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserPersona | null>(null);
@@ -35,8 +24,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    void refreshUser();
-  }, [refreshUser]);
+    let active = true;
+    mockApi
+      .getCurrentUser()
+      .then((current) => {
+        if (active) setUser(current);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const loginAsPersona = useCallback(
     async (personaId: string) => {
@@ -62,12 +62,3 @@ export function UserProvider({ children }: { children: ReactNode }) {
     </UserContext.Provider>
   );
 }
-
-export function useUser(): UserContextValue {
-  const ctx = useContext(UserContext);
-  if (!ctx) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return ctx;
-}
-

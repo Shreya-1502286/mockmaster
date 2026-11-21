@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { useUser } from '../../context/UserContext';
+import { useUser } from '../../context/useUser';
 import { Navbar } from './Navbar';
 
 interface AppLayoutProps {

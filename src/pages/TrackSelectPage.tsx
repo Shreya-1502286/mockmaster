@@ -1,5 +1,5 @@
 import { Filter } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   CourseCard,
@@ -27,27 +27,34 @@ export function TrackSelectPage() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty | 'all'>('all');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [query, setQuery] = useState(searchParams.get('q') ?? '');
-
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const [tracksData, questionsData] = await Promise.all([
-        mockApi.getTracks(),
-        mockApi.getQuestions(),
-      ]);
-      setTracks(tracksData);
-      setQuestions(questionsData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load tracks.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    void loadData();
-  }, [loadData]);
+    let active = true;
+    Promise.all([mockApi.getTracks(), mockApi.getQuestions()])
+      .then(([tracksData, questionsData]) => {
+        if (!active) return;
+        setTracks(tracksData);
+        setQuestions(questionsData);
+        setError(null);
+      })
+      .catch((err) => {
+        if (!active) return;
+        setError(err instanceof Error ? err.message : 'Failed to load tracks.');
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [reloadKey]);
+
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    setReloadKey((k) => k + 1);
+  };
 
   const handleSearchChange = (next: string) => {
     setQuery(next);
@@ -172,7 +179,7 @@ export function TrackSelectPage() {
         {loading ? (
           <LoadingState label="Loading tracks & question bank..." />
         ) : error ? (
-          <ErrorState message={error} onRetry={() => void loadData()} />
+          <ErrorState message={error} onRetry={handleRetry} />
         ) : filteredTracks.length === 0 ? (
           <EmptyState
             title="No matching tracks"

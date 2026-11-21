@@ -2,7 +2,7 @@ import { ArrowRight, CheckCircle2, Sparkles, UserCheck } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { LoadingState } from '../components';
-import { useUser } from '../context/UserContext';
+import { useUser } from '../context/useUser';
 import { mockApi } from '../mocks/api';
 import type { UserPersona } from '../mocks/types';
 
