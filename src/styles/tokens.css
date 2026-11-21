@@ -1,0 +1,130 @@
+/*
+ * MockMaster Design Tokens
+ * Light mode: Pure-white (#FFFFFF) canvas, #5624D2 primary accent, #1E8E5A emerald badges/done states
+ * Dark mode: Chrome-inspired (#202124 / #292A2D) surfaces with restrained accents
+ */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
+  /* Surfaces */
+  --bg-canvas: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #f8f9fa;
+  --bg-surface-hover: #f1f3f4;
+  --bg-code: #f4f5f7;
+  --bg-overlay: rgba(32, 33, 36, 0.45);
+
+  /* Text */
+  --text-primary: #1f2328;
+  --text-secondary: #5f6368;
+  --text-muted: #80868b;
+  --text-inverse: #ffffff;
+
+  /* Borders */
+  --border-subtle: #e8eaed;
+  --border-default: #dadce0;
+  --border-strong: #bdc1c6;
+
+  /* Brand & Primary Accent */
+  --accent-primary: #5624d2;
+  --accent-primary-hover: #451bb0;
+  --accent-primary-soft: #f3eeff;
+  --accent-primary-border: #d4c2ff;
+
+  /* Emerald (Free badges, Done states, Positive progress) */
+  --emerald: #1e8e5a;
+  --emerald-hover: #177348;
+  --emerald-soft: #e6f4ea;
+  --emerald-border: #a8dab5;
+
+  /* Semantic Status & Difficulty Badges */
+  --status-info: #1a73e8;
+  --status-info-soft: #e8f0fe;
+  --status-warning: #b06000;
+  --status-warning-soft: #fef7e0;
+  --status-danger: #c5221f;
+  --status-danger-soft: #fce8e6;
+
+  --badge-easy-text: #1e8e5a;
+  --badge-easy-bg: #e6f4ea;
+  --badge-medium-text: #b06000;
+  --badge-medium-bg: #fef7e0;
+  --badge-hard-text: #c5221f;
+  --badge-hard-bg: #fce8e6;
+
+  /* Typography */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Radii */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(31, 35, 40, 0.04);
+  --shadow-sm: 0 1px 3px rgba(31, 35, 40, 0.06), 0 1px 2px rgba(31, 35, 40, 0.04);
+  --shadow-md: 0 4px 12px rgba(31, 35, 40, 0.08), 0 1px 3px rgba(31, 35, 40, 0.04);
+  --shadow-lg: 0 12px 28px rgba(31, 35, 40, 0.12), 0 2px 6px rgba(31, 35, 40, 0.06);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Chrome-inspired Dark Surfaces */
+  --bg-canvas: #202124;
+  --bg-surface: #292a2d;
+  --bg-surface-subtle: #292a2d;
+  --bg-surface-hover: #35363a;
+  --bg-code: #17181b;
+  --bg-overlay: rgba(0, 0, 0, 0.65);
+
+  /* Text */
+  --text-primary: #e8eaed;
+  --text-secondary: #9aa0a6;
+  --text-muted: #80868b;
+  --text-inverse: #202124;
+
+  /* Borders */
+  --border-subtle: #3c4043;
+  --border-default: #4a4d51;
+  --border-strong: #5f6368;
+
+  /* Restrained Brand Accent */
+  --accent-primary: #8b6bff;
+  --accent-primary-hover: #a188ff;
+  --accent-primary-soft: rgba(139, 107, 255, 0.14);
+  --accent-primary-border: rgba(139, 107, 255, 0.35);
+
+  /* Restrained Emerald */
+  --emerald: #34a874;
+  --emerald-hover: #46ba86;
+  --emerald-soft: rgba(52, 168, 116, 0.14);
+  --emerald-border: rgba(52, 168, 116, 0.35);
+
+  /* Semantic Status & Difficulty Badges */
+  --status-info: #8ab4f8;
+  --status-info-soft: rgba(138, 180, 248, 0.14);
+  --status-warning: #fdd663;
+  --status-warning-soft: rgba(253, 214, 99, 0.14);
+  --status-danger: #f28b82;
+  --status-danger-soft: rgba(242, 139, 130, 0.14);
+
+  --badge-easy-text: #81c995;
+  --badge-easy-bg: rgba(52, 168, 116, 0.16);
+  --badge-medium-text: #fdd663;
+  --badge-medium-bg: rgba(253, 214, 99, 0.14);
+  --badge-hard-text: #f28b82;
+  --badge-hard-bg: rgba(242, 139, 130, 0.14);
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.5), 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+

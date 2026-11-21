@@ -1,0 +1,18 @@
+# Antigravity Rules — MockMaster (2-Day Sprint)
+
+1. **Strict Approval Gates**:
+   - NEVER run `git commit`, `git push`, `git amend`, `git reset`, or `git checkout -b` without explicit user approval in the current turn (`git init`, `git status`, `git diff`, and `git remote` setup are permitted).
+   - NEVER advance to the next phase in `PLAN.md` without stopping, summarizing completed work + verification status, and receiving explicit user approval to proceed to the next phase.
+
+2. **Token Efficiency Rules**:
+   - Read only the files needed for the current phase. Do not dump large directories or repeat full file contents in chat responses.
+   - Pull design tokens and screen layouts from Google Stitch project `2054388282190489874` once during Phase 0 into `src/styles/tokens.css` (or `DESIGN.md`), then reference local files in later phases.
+   - Keep responses concise: list files created/modified, key decisions, and ask for approval at the phase gate.
+
+3. **Mock-First Scope Discipline**:
+   - All data is mocked locally (no live backend, no paid AI APIs, no external database).
+   - Keep v1 strictly to the 9 planned screens and routes; defer extras (human scheduling, admin panel, email/SMS, real AI APIs, mobile app) to Phase 2 Backlog.
+   - Preserve light mode (pure white `#FFFFFF` canvas, `#5624D2` primary accent, `#1E8E5A` emerald badges/done states) and Chrome-inspired dark mode (`#202124` / `#292A2D` surfaces with restrained accents).
+
+4. **Change Tracking**:
+   - Append brief entries to `CHANGELOG.md` per phase covering files touched, key decisions, and open questions.
