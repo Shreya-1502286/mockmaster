@@ -53,5 +53,29 @@ All notable changes to MockMaster are documented in this file by phase.
 ### Open Questions / Notes
 - None. Ready for Phase 3 (End-to-End Screens & Session Flow).
 
+## Phase 3 — End-to-End Screens & Session Flow (2026-11-21)
+### Files Created / Modified
+- Created `src/context/UserContext.tsx` and `src/components/layout/AppLayout.tsx` for shared authenticated user state and consistent `Navbar` layout.
+- Updated `src/components/layout/Navbar.tsx` to link Sign Out / Switch Account to `/auth`.
+- Built all 9 screens in `src/pages/`:
+  - `LandingPage.tsx` (`/`) with hero, feature highlights, 4-track preview, and one-click demo launch.
+  - `AuthPage.tsx` (`/auth`) with 50/50 split layout and one-click demo login for `Shreya` (`fresher`) and `Aarav` (`professional`).
+  - `DashboardPage.tsx` (`/dashboard`) with welcome/weekly progress, Mon–Fri `TimelineRail`, `DebriefCard`, `My Courses`, and `Free Courses / Free Practice` shelves.
+  - `TrackSelectPage.tsx` (`/tracks`) with track, difficulty, status (`All` / `Free` / `In Progress`), and search filtering plus question bank preview.
+  - `SessionLobbyPage.tsx` (`/lobby/:trackId`) with difficulty/mode/pacing/question-count configuration and weekly streak impact preview.
+  - `InterviewSessionPage.tsx` (`/session/:sessionId`) with split-pane Q&A + AI follow-up input on the left and `CodePane` on the right, wired to `submitSessionAnswer` and `completeSession`.
+  - `ScorecardPage.tsx` (`/scorecard/:sessionId`) with SVG score ring, 4-dimension rubric breakdown, strengths/improvements, and expandable question review.
+  - `ProgressPage.tsx` (`/progress`) with 4 KPI cards, 4-week consistency chart, track mastery bars, and past sessions table linking to scorecards.
+  - `SettingsPage.tsx` (`/settings`) with role/target editor, light/dark theme toggle synced to `ThemeProvider` and `patchMySettings`, weekly goal, and demo reset.
+- Wired client-side routing in `src/App.tsx` via `react-router-dom`.
+
+### Key Decisions
+- Kept `UserProvider` synchronized with `ThemeProvider` so switching personas on `/auth` automatically applies that persona's saved theme (`light` for Shreya, `dark` for Aarav).
+- Completing a session in `InterviewSessionPage` auto-evaluates any unsubmitted current answer, generates the scorecard, increments streak, updates the weekly plan, and refreshes `UserContext`.
+
+### Open Questions / Notes
+- None. Ready for Phase 4 (Light/Dark QA, Demo Seed & Polish).
+
+
 
 

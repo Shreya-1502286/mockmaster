@@ -237,7 +237,7 @@ export function Navbar({
                 </Link>
 
                 <Link
-                  to="/login"
+                  to="/auth"
                   onClick={() => {
                     setMenuOpen(false);
                     onLogout?.();
