@@ -90,6 +90,40 @@ All notable changes to MockMaster are documented in this file by phase.
 ### Open Questions / Notes
 - Ready for user review and git commit/push approval.
 
+## Interview Session Polish Pass (2026-11-24)
+### Files Created / Modified
+- Updated `src/components/ui/QuestionPanel.tsx` with `Prompt` / `AI Follow-up` / `Hints` tabs, structured Example 1 & Example 2 cards, and Constraints & Expectations.
+- Updated `src/components/ui/CodePane.tsx` into a full-height dark IDE pane (`#1E2028` / `#202124`) with language selector, `Reset Code`, `Run Check` (`#1E8E5A`), `Submit` (`#5624D2`), and a **Test Cases & Output** strip with `PASSED` / `FAILED` / `PENDING` pills.
+- Updated `src/pages/InterviewSessionPage.tsx` with a compact top session bar (breadcrumb, `Question X of Y`, live timer, `Prev`/`Next`, `Finish Session`) and a compact **AI Interviewer Follow-up** card.
+
+## Layout Fix — 3-Column Grids & Banner Framing (2026-11-24)
+### Files Created / Modified
+- Updated `src/pages/DashboardPage.tsx` (Free Courses / Free Practice shelf) and `src/pages/TrackSelectPage.tsx` (main track catalog grid) to use `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5`.
+- Updated `src/components/ui/CourseCard.tsx` Frontend geometric banner SVG to render edge-to-edge without an inner white box border.
+
+## Visual Polish Pass — Stitch Alignment (2026-11-24)
+### Files Created / Modified
+- Updated `src/styles/tokens.css` with track-specific pastel banner tints (`--banner-dsa`, `--banner-frontend`, `--banner-behavioral`, `--banner-system-design`) for both light and dark modes.
+- Updated `src/components/ui/CourseCard.tsx` with full-bleed `112px` (`h-28`) geometric SVG banners, compact padding, single concise summary, inline metadata + `DifficultyBadge`, progress bar, and full-width `#5624D2` `Resume` / outlined `Start` CTA button.
+
+### Key Decisions
+- Removed redundant tag pill rows from `CourseCard` to keep card heights compact and balanced across `DashboardPage` and `TrackSelectPage`.
+
+### Open Questions / Notes
+- Ready for user review and git commit/push approval.
+
+## Interview Session Polish Pass (2026-11-24)
+### Files Created / Modified
+- Updated `src/components/ui/QuestionPanel.tsx` with `Prompt` / `AI Follow-up` / `Hints` tabs, structured Example 1 & Example 2 cards, and Constraints & Expectations.
+- Updated `src/components/ui/CodePane.tsx` into a full-height dark IDE pane (`#1E2028` / `#202124`) with language selector, `Reset Code`, `Run Check` (`#1E8E5A`), `Submit` (`#5624D2`), and a **Test Cases & Output** strip with `PASSED` / `FAILED` / `PENDING` pills.
+- Updated `src/pages/InterviewSessionPage.tsx` with a compact top session bar (breadcrumb, `Question X of Y`, live timer, `Prev`/`Next`, `Finish Session`) and a compact **AI Interviewer Follow-up** card.
+
+## Layout Fix — 3-Column Grids & Banner Framing (2026-11-24)
+### Files Created / Modified
+- Updated `src/pages/DashboardPage.tsx` (Free Courses / Free Practice shelf) and `src/pages/TrackSelectPage.tsx` (main track catalog grid) to use `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5`.
+- Updated `src/components/ui/CourseCard.tsx` Frontend geometric banner SVG to render edge-to-edge without an inner white box border.
+
+
 
 
 

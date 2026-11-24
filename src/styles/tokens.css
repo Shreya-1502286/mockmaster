@@ -59,6 +59,12 @@
   --badge-hard-text: #c5221f;
   --badge-hard-bg: #fce8e6;
 
+  /* Track Banner Tints */
+  --banner-dsa: #ece7fc;
+  --banner-frontend: #fef3e6;
+  --banner-behavioral: #e6f4ea;
+  --banner-system-design: #ebf5fb;
+
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -130,6 +136,12 @@
   --badge-medium-bg: rgba(253, 214, 99, 0.14);
   --badge-hard-text: #f28b82;
   --badge-hard-bg: rgba(242, 139, 130, 0.14);
+
+  /* Track Banner Tints (Dark) */
+  --banner-dsa: rgba(139, 107, 255, 0.13);
+  --banner-frontend: rgba(245, 158, 11, 0.12);
+  --banner-behavioral: rgba(52, 168, 116, 0.12);
+  --banner-system-design: rgba(138, 180, 248, 0.12);
 
   /* Shadows */
   --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.25);

@@ -255,7 +255,7 @@ export function DashboardPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {freeTracks.map((track) => (
                 <CourseCard
                   key={track.id}
