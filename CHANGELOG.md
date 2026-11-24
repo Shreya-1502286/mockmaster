@@ -90,6 +90,18 @@ All notable changes to MockMaster are documented in this file by phase.
 ### Open Questions / Notes
 - Ready for user review and git commit/push approval.
 
+## Question-Specific Examples & Vercel SPA Config (2026-11-24)
+### Files Created / Modified
+- Updated `src/mocks/types.ts` with `QuestionExample` and optional `examples` / `constraints` fields on `Question`.
+- Updated `src/mocks/fixtures/questions.ts` with problem-specific `examples` and `constraints` across all 36 questions (DSA, Frontend, Behavioral, System Design).
+- Updated `src/components/ui/QuestionPanel.tsx` to render `question.examples` and `question.constraints` directly without generic fallback text.
+- Created `vercel.json` with SPA rewrite rule `{"source": "/(.*)", "destination": "/index.html"}`.
+
+## Live Gemini Evaluator Integration (2026-11-24)
+### Files Created / Modified
+- Updated `src/mocks/api.ts` with `callGeminiEvaluator(prompt)` using `gemini-3.8-flash` (and `gemini-3.5-flash-lite` fallback) when `VITE_GEMINI_API_KEY` is present, with automatic fallback to Phase 1 deterministic evaluation if missing, rate-limited, or offline.
+- Wired live structured JSON evaluation into `submitSessionAnswer` (`{ followUp, hint }`) and `completeSession` (`{ overallScore, rubric, debrief, questionReviews }`).
+
 ## Interview Session Polish Pass (2026-11-24)
 ### Files Created / Modified
 - Updated `src/components/ui/QuestionPanel.tsx` with `Prompt` / `AI Follow-up` / `Hints` tabs, structured Example 1 & Example 2 cards, and Constraints & Expectations.
@@ -111,6 +123,18 @@ All notable changes to MockMaster are documented in this file by phase.
 
 ### Open Questions / Notes
 - Ready for user review and git commit/push approval.
+
+## Question-Specific Examples & Vercel SPA Config (2026-11-24)
+### Files Created / Modified
+- Updated `src/mocks/types.ts` with `QuestionExample` and optional `examples` / `constraints` fields on `Question`.
+- Updated `src/mocks/fixtures/questions.ts` with problem-specific `examples` and `constraints` across all 36 questions (DSA, Frontend, Behavioral, System Design).
+- Updated `src/components/ui/QuestionPanel.tsx` to render `question.examples` and `question.constraints` directly without generic fallback text.
+- Created `vercel.json` with SPA rewrite rule `{"source": "/(.*)", "destination": "/index.html"}`.
+
+## Live Gemini Evaluator Integration (2026-11-24)
+### Files Created / Modified
+- Updated `src/mocks/api.ts` with `callGeminiEvaluator(prompt)` using `gemini-3.8-flash` (and `gemini-3.5-flash-lite` fallback) when `VITE_GEMINI_API_KEY` is present, with automatic fallback to Phase 1 deterministic evaluation if missing, rate-limited, or offline.
+- Wired live structured JSON evaluation into `submitSessionAnswer` (`{ followUp, hint }`) and `completeSession` (`{ overallScore, rubric, debrief, questionReviews }`).
 
 ## Interview Session Polish Pass (2026-11-24)
 ### Files Created / Modified

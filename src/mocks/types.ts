@@ -54,6 +54,12 @@ export interface FollowUpRule {
   focusArea: string;
 }
 
+export interface QuestionExample {
+  input: string;
+  output: string;
+  explanation?: string;
+}
+
 export interface Question {
   id: string;
   trackId: TrackId;
@@ -61,6 +67,8 @@ export interface Question {
   title: string;
   prompt: string;
   context?: string;
+  examples?: QuestionExample[];
+  constraints?: string[];
   hints: string[];
   starterCode?: string;
   language?: 'typescript' | 'javascript';

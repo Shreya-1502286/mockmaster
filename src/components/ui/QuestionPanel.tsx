@@ -1,6 +1,6 @@
 import { Lightbulb, MessageSquare, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import type { Question, QuestionEvaluation, TrackId } from '../../mocks/types';
+import type { Question, QuestionEvaluation } from '../../mocks/types';
 import { DifficultyBadge } from './Badges';
 
 type QuestionTab = 'prompt' | 'followup' | 'hints';
@@ -12,103 +12,6 @@ interface QuestionPanelProps {
   evaluation?: QuestionEvaluation;
 }
 
-interface ExampleCase {
-  label: string;
-  input: string;
-  output: string;
-  explanation?: string;
-}
-
-function getExamplesAndConstraints(question: Question): {
-  examples: ExampleCase[];
-  constraints: string[];
-} {
-  const byTrack: Record<TrackId, { examples: ExampleCase[]; constraints: string[] }> = {
-    dsa: {
-      examples: [
-        {
-          label: 'Example 1',
-          input: 'nums = [2, 7, 11, 15], target = 9',
-          output: '[0, 1]',
-          explanation: 'Optimal linear pass avoids nested O(n^2) comparisons.',
-        },
-        {
-          label: 'Example 2',
-          input: 'nums = [3, 2, 4], target = 6',
-          output: '[1, 2]',
-        },
-      ],
-      constraints: [
-        '1 <= input.length <= 10^5',
-        'Aim for O(n) or O(n log n) time complexity',
-        'Handle empty, single-element, and duplicate edge cases',
-      ],
-    },
-    frontend: {
-      examples: [
-        {
-          label: 'Example 1',
-          input: 'Rapidly triggered calls within 300ms window',
-          output: 'Invokes callback once after 300ms of inactivity',
-          explanation: 'Previous pending timers or stale requests are cancelled.',
-        },
-        {
-          label: 'Example 2',
-          input: 'Component unmounts while async operation is pending',
-          output: 'Cleanup cancels pending work; zero state-update warnings',
-        },
-      ],
-      constraints: [
-        'Zero memory leaks on unmount or repeated re-renders',
-        'Preserve TypeScript type safety & DOM accessibility',
-        'Avoid stale closures over state or props',
-      ],
-    },
-    behavioral: {
-      examples: [
-        {
-          label: 'Example 1 (STAR Framing)',
-          input: 'Situation & Task (20–30s)',
-          output: 'Clear context, stakes, and your direct ownership',
-          explanation: 'Avoid spending more than 30 seconds on background setup.',
-        },
-        {
-          label: 'Example 2 (Impact)',
-          input: 'Action & Result (60–90s)',
-          output: 'Concrete technical decision + measurable outcome',
-        },
-      ],
-      constraints: [
-        'Keep total story under 2–3 minutes',
-        'Use "I" for your actions and "we" for team context',
-        'Include at least one measurable or observable result',
-      ],
-    },
-    'system-design': {
-      examples: [
-        {
-          label: 'Example 1 (Happy Path)',
-          input: '10k concurrent active users, <100ms p95 interaction',
-          output: 'Cached client state + debounced/batched network sync',
-          explanation: 'Minimize redundant round-trips and main-thread work.',
-        },
-        {
-          label: 'Example 2 (Failure Mode)',
-          input: 'Network drops or stale response arrives out-of-order',
-          output: 'Optimistic rollback / AbortController + retry backoff',
-        },
-      ],
-      constraints: [
-        'Clarify functional & non-functional requirements first',
-        'Cover API contract, client state, caching, and failure modes',
-        'Discuss accessibility, security, and observability tradeoffs',
-      ],
-    },
-  };
-
-  return byTrack[question.trackId];
-}
-
 export function QuestionPanel({
   question,
   index,
@@ -116,7 +19,8 @@ export function QuestionPanel({
   evaluation,
 }: QuestionPanelProps) {
   const [activeTab, setActiveTab] = useState<QuestionTab>('prompt');
-  const { examples, constraints } = getExamplesAndConstraints(question);
+  const examples = question.examples ?? [];
+  const constraints = question.constraints ?? [];
 
   return (
     <div
@@ -214,52 +118,56 @@ export function QuestionPanel({
               {question.prompt}
             </p>
 
-            {/* Examples 1 & 2 */}
-            <div className="space-y-2.5">
-              {examples.map((ex) => (
-                <div
-                  key={ex.label}
-                  className="rounded-lg border p-3 space-y-1 text-xs"
-                  style={{
-                    backgroundColor: 'var(--bg-surface-subtle)',
-                    borderColor: 'var(--border-subtle)',
-                  }}
-                >
-                  <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
-                    {ex.label}
-                  </p>
-                  <p className="font-mono" style={{ color: 'var(--text-secondary)' }}>
-                    <strong style={{ color: 'var(--text-primary)' }}>Input:</strong> {ex.input}
-                  </p>
-                  <p className="font-mono" style={{ color: 'var(--text-secondary)' }}>
-                    <strong style={{ color: 'var(--text-primary)' }}>Output:</strong> {ex.output}
-                  </p>
-                  {ex.explanation && (
-                    <p style={{ color: 'var(--text-muted)' }}>
-                      <strong>Note:</strong> {ex.explanation}
+            {/* Question-Specific Examples */}
+            {examples.length > 0 && (
+              <div className="space-y-2.5">
+                {examples.map((ex, idx) => (
+                  <div
+                    key={`${question.id}-ex-${idx + 1}`}
+                    className="rounded-lg border p-3 space-y-1 text-xs"
+                    style={{
+                      backgroundColor: 'var(--bg-surface-subtle)',
+                      borderColor: 'var(--border-subtle)',
+                    }}
+                  >
+                    <p className="font-semibold" style={{ color: 'var(--text-primary)' }}>
+                      Example {idx + 1}
                     </p>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Constraints */}
-            <div className="space-y-1.5">
-              <p
-                className="text-xs font-semibold uppercase tracking-wide"
-                style={{ color: 'var(--text-muted)' }}
-              >
-                Constraints & Expectations
-              </p>
-              <ul
-                className="space-y-1 text-xs list-disc list-inside"
-                style={{ color: 'var(--text-secondary)' }}
-              >
-                {constraints.map((c) => (
-                  <li key={c}>{c}</li>
+                    <p className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      <strong style={{ color: 'var(--text-primary)' }}>Input:</strong> {ex.input}
+                    </p>
+                    <p className="font-mono" style={{ color: 'var(--text-secondary)' }}>
+                      <strong style={{ color: 'var(--text-primary)' }}>Output:</strong> {ex.output}
+                    </p>
+                    {ex.explanation && (
+                      <p style={{ color: 'var(--text-muted)' }}>
+                        <strong>Explanation:</strong> {ex.explanation}
+                      </p>
+                    )}
+                  </div>
                 ))}
-              </ul>
-            </div>
+              </div>
+            )}
+
+            {/* Question-Specific Constraints */}
+            {constraints.length > 0 && (
+              <div className="space-y-1.5">
+                <p
+                  className="text-xs font-semibold uppercase tracking-wide"
+                  style={{ color: 'var(--text-muted)' }}
+                >
+                  Constraints & Expectations
+                </p>
+                <ul
+                  className="space-y-1 text-xs list-disc list-inside"
+                  style={{ color: 'var(--text-secondary)' }}
+                >
+                  {constraints.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )}
 

@@ -28,6 +28,55 @@ import type {
 } from './types';
 
 const STORAGE_KEY = 'mockmaster_mock_store_v1';
+const GEMINI_PRIMARY_MODEL = 'gemini-3.8-flash';
+const GEMINI_FALLBACK_MODEL = 'gemini-3.5-flash-lite';
+
+async function requestGeminiModel<T>(
+  model: string,
+  apiKey: string,
+  prompt: string
+): Promise<T | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { responseMimeType: 'application/json' },
+        }),
+        signal: controller.signal,
+      }
+    );
+    if (!res.ok) return null;
+    const payload = (await res.json()) as {
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+    };
+    const rawText = payload.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!rawText) return null;
+    return JSON.parse(rawText) as T;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+async function callGeminiEvaluator<T>(prompt: string): Promise<T | null> {
+  const apiKey = (import.meta.env.VITE_GEMINI_API_KEY as string | undefined)?.trim();
+  if (!apiKey) return null;
+
+  const primary = await requestGeminiModel<T>(GEMINI_PRIMARY_MODEL, apiKey, prompt);
+  if (primary !== null) return primary;
+
+  return requestGeminiModel<T>(GEMINI_FALLBACK_MODEL, apiKey, prompt);
+}
 
 interface MockStoreState {
   activeUserId: string;
@@ -372,6 +421,31 @@ export const mockApi = {
       followUpAnswer
     );
 
+    const aiFollowUp = await callGeminiEvaluator<{
+      followUp?: string;
+      hint?: string;
+    }>(
+      [
+        'You are a concise, sharp technical interviewer for MockMaster.',
+        `Track: ${targetSession.trackName}`,
+        `Question (${question.difficulty}): ${question.title}`,
+        `Prompt: ${question.prompt}`,
+        `Candidate Code:\n${userCode || '(none)'}`,
+        `Candidate Explanation:\n${userAnswer || '(none)'}`,
+        followUpAnswer ? `Follow-up Reply:\n${followUpAnswer}` : '',
+        'Return strict JSON: { "followUp": string, "hint": string } where followUp is one targeted technical follow-up question and hint is a concise 1-sentence coaching tip.',
+      ]
+        .filter(Boolean)
+        .join('\n\n')
+    );
+
+    if (aiFollowUp?.followUp?.trim()) {
+      evaluation.followUpPrompt = aiFollowUp.followUp.trim();
+    }
+    if (aiFollowUp?.hint?.trim()) {
+      evaluation.feedback = aiFollowUp.hint.trim();
+    }
+
     const idx = targetSession.evaluations.findIndex(
       (e) => e.questionId === questionId
     );
@@ -398,7 +472,85 @@ export const mockApi = {
     if (session.status !== 'completed') {
       session.status = 'completed';
       session.completedAt = new Date().toISOString();
-      session.scorecard = buildScorecard(session);
+
+      const fallbackScorecard = buildScorecard(session);
+      const aiScorecard = await callGeminiEvaluator<{
+        overallScore?: number;
+        rubric?: Array<{ label?: string; score?: number; feedback?: string }>;
+        debrief?: string;
+        questionReviews?: Array<{
+          questionId?: string;
+          feedback?: string;
+          sampleApproach?: string;
+        }>;
+      }>(
+        [
+          'You are an engineering interview coach for MockMaster. Evaluate this completed mock session.',
+          `Track: ${session.trackName} (${session.difficulty}, ${session.mode})`,
+          `Submissions:\n${JSON.stringify(
+            session.evaluations.map((ev) => ({
+              questionId: ev.questionId,
+              questionTitle: ev.questionTitle,
+              userAnswer: ev.userAnswer,
+              userCode: ev.userCode ?? '',
+              followUpPrompt: ev.followUpPrompt,
+              followUpAnswer: ev.followUpAnswer ?? '',
+            }))
+          )}`,
+          'Return strict JSON: { "overallScore": number (0-100), "rubric": Array<{ "label": string, "score": number (0-100), "feedback": string }> (4 items: Problem Solving, Code & Structure, Communication, Edge Cases), "debrief": string (1-2 sentence mentor quote), "questionReviews": Array<{ "questionId": string, "feedback": string, "sampleApproach": string }> }.',
+        ].join('\n\n')
+      );
+
+      if (aiScorecard && typeof aiScorecard.overallScore === 'number') {
+        const overall = Math.max(0, Math.min(100, Math.round(aiScorecard.overallScore)));
+        const rubricKeys: RubricDimension['key'][] = [
+          'problemSolving',
+          'codeOrStructure',
+          'communication',
+          'edgeCases',
+        ];
+        const mappedRubric: RubricDimension[] =
+          Array.isArray(aiScorecard.rubric) && aiScorecard.rubric.length > 0
+            ? aiScorecard.rubric.slice(0, 4).map((item, idx) => ({
+                key: rubricKeys[idx] ?? 'problemSolving',
+                label: item.label?.trim() || fallbackScorecard.rubric[idx]?.label || 'Criterion',
+                score: Math.max(
+                  0,
+                  Math.min(100, Math.round(item.score ?? overall))
+                ),
+                feedback:
+                  item.feedback?.trim() ||
+                  fallbackScorecard.rubric[idx]?.feedback ||
+                  '',
+              }))
+            : fallbackScorecard.rubric;
+
+        if (Array.isArray(aiScorecard.questionReviews)) {
+          aiScorecard.questionReviews.forEach((rev) => {
+            const target = session.evaluations.find(
+              (ev) => ev.questionId === rev.questionId
+            );
+            if (target && rev.feedback?.trim()) {
+              target.feedback = rev.sampleApproach?.trim()
+                ? `${rev.feedback.trim()} Sample approach: ${rev.sampleApproach.trim()}`
+                : rev.feedback.trim();
+            }
+          });
+        }
+
+        session.scorecard = {
+          ...fallbackScorecard,
+          overallScore: overall,
+          gradeLabel: gradeFromScore(overall),
+          rubric: mappedRubric,
+          mentorDebrief:
+            aiScorecard.debrief?.trim() || fallbackScorecard.mentorDebrief,
+          questionEvaluations: session.evaluations,
+        };
+      } else {
+        session.scorecard = fallbackScorecard;
+      }
+
       user.streakDays += 1;
 
       // Mark today's matching weekly plan item done if present
